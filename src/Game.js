@@ -10,9 +10,11 @@ export default function Game() {
   const [col, setCol] = useState(0);
   const [word, setWord] = useState([]);
   const [colors, setColors] = useState([]);
+  const [gameState, setGameState] = useState(true);
 
   const check = useCallback(() => {
-    if (col === maxCol) {
+    console.log("check");
+    if (col === maxCol && gameState) {
       const tryWord = chars[line];
 
       tryWord.forEach((c, key) => {
@@ -34,11 +36,24 @@ export default function Game() {
           }
         }
       });
-
+      if (tryWord.join("") === word.join("")) {
+        // Check for win
+        setGameState(false);
+        endTheGame("won");
+        return;
+      }
       setLine((line) => line + 1);
       setCol(0);
     }
-  }, [chars, col, line, maxCol, word, colors]);
+  }, [chars, col, line, maxCol, maxLine, word, colors]);
+
+  function endTheGame(winOrLose) {
+    if (winOrLose === "won") {
+      console.log("Game ended, You won");
+    } else if (winOrLose === "lost") {
+      console.log("Game ended, You lost");
+    }
+  }
 
   const setElement = useCallback(
     (char) => {
@@ -103,7 +118,8 @@ export default function Game() {
       "FAKER",
       "LOSER",
     ];
-    setWord([...dataWords[randRange]]);
+    setWord([...dataWords[5]]);
+    console.log("word has been set");
   }, []);
 
   useEffect(() => {
@@ -114,27 +130,42 @@ export default function Game() {
     };
   }, [keyDownListner]);
 
+  const resetGame = (e) => {
+    setChars(
+      new Array(maxLine).fill(null).map(() => new Array(maxCol).fill(""))
+    );
+    setColors([]);
+    setLine(0);
+    setCol(0);
+    e.target.blur();
+    console.log("RESET");
+  };
+
   return (
-    <div className="main">
-      <div className="grid">
-        {chars.map((line, key) => (
-          <div className="line" key={key}>
-            {line.map((el, elKey) => (
-              <div
-                key={elKey}
-                className="element"
-                style={{
-                  backgroundColor: colors[key * maxCol + elKey]
-                    ? colors[key * maxCol + elKey]
-                    : "",
-                }}
-              >
-                {el}
-              </div>
-            ))}
-          </div>
-        ))}
+    <>
+      <div className="main">
+        <div className="grid">
+          {chars.map((line, key) => (
+            <div className="line" key={key}>
+              {line.map((el, elKey) => (
+                <div
+                  key={elKey}
+                  className="element"
+                  style={{
+                    backgroundColor: colors[key * maxCol + elKey]
+                      ? colors[key * maxCol + elKey]
+                      : "",
+                  }}
+                >
+                  {el}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+
+      <button onClick={(e) => resetGame(e)}>Play again</button>
+    </>
   );
 }
