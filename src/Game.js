@@ -45,7 +45,7 @@ export default function Game() {
       setLine((line) => line + 1);
       setCol(0);
     }
-  }, [chars, col, line, maxCol, maxLine, word, colors]);
+  }, [chars, col, line, maxCol, word, colors, gameState]);
 
   function endTheGame(winOrLose) {
     if (winOrLose === "won") {
@@ -108,7 +108,7 @@ export default function Game() {
     const randRange = Math.floor(Math.random() * 10);
     const dataWords = [
       "WINER",
-      "BEFORE",
+      "BEFOR",
       "APPLE",
       "NEVER",
       "HELLO",
@@ -118,9 +118,9 @@ export default function Game() {
       "FAKER",
       "LOSER",
     ];
-    setWord([...dataWords[5]]);
+    setWord([...dataWords[randRange]]);
     console.log("word has been set");
-  }, []);
+  }, [gameState]);
 
   useEffect(() => {
     document.addEventListener("keydown", keyDownListner);
@@ -137,6 +137,7 @@ export default function Game() {
     setColors([]);
     setLine(0);
     setCol(0);
+    setGameState(true);
     e.target.blur();
     console.log("RESET");
   };
