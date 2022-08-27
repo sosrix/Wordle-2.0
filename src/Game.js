@@ -11,9 +11,10 @@ export default function Game() {
   const [word, setWord] = useState([]);
   const [colors, setColors] = useState([]);
   const [gameState, setGameState] = useState(true);
+  const [gameMessage, setGameMessage] = useState("Guess the word");
 
   const check = useCallback(() => {
-    console.log("check");
+    console.log("checking ...");
     if (col === maxCol && gameState) {
       const tryWord = chars[line];
 
@@ -39,31 +40,34 @@ export default function Game() {
       if (tryWord.join("") === word.join("")) {
         // Check for win
         setGameState(false);
-        endTheGame("won");
+        setGameMessage("Game ended, You WON!");
+        return;
+      }
+      if (line === maxLine - 1) {
+        // Check for win
+        setGameState(false);
+        setGameMessage("Game ended, You LOST!");
+
         return;
       }
       setLine((line) => line + 1);
       setCol(0);
     }
-  }, [chars, col, line, maxCol, word, colors, gameState]);
-
-  function endTheGame(winOrLose) {
-    if (winOrLose === "won") {
-      console.log("Game ended, You won");
-    } else if (winOrLose === "lost") {
-      console.log("Game ended, You lost");
-    }
-  }
+  }, [chars, col, line, maxCol, maxLine, word, colors, gameState]);
 
   const setElement = useCallback(
     (char) => {
       if (col >= maxCol) {
         //mssg 1
-        console.log("mssg 1");
+        console.log(
+          "Maximum letters excided press Enter to check if the word's correct"
+        );
         return;
       }
       if (line >= maxLine) {
-        console.log("mssg 2");
+        console.log(
+          "You're out of lines, Press Play again to try one more time"
+        );
         // mssg 2
         return;
       }
@@ -103,7 +107,6 @@ export default function Game() {
     },
     [setElement, deletLastElment, check]
   );
-
   useEffect(() => {
     const randRange = Math.floor(Math.random() * 10);
     const dataWords = [
@@ -138,6 +141,7 @@ export default function Game() {
     setLine(0);
     setCol(0);
     setGameState(true);
+    setGameMessage("Guess the word");
     e.target.blur();
     console.log("RESET");
   };
@@ -165,7 +169,7 @@ export default function Game() {
           ))}
         </div>
       </div>
-
+      <p> {gameMessage} </p>
       <button onClick={(e) => resetGame(e)}>Play again</button>
     </>
   );
