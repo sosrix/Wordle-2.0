@@ -150,6 +150,7 @@ export default function Game() {
     <>
       <div className="main">
         <div className="grid">
+          <p className="gameMessage"> {gameMessage} </p>
           {chars.map((line, key) => (
             <div className="line" key={key}>
               {line.map((el, elKey) => (
@@ -169,8 +170,11 @@ export default function Game() {
           ))}
         </div>
       </div>
-      <p> {gameMessage} </p>
-      <button onClick={(e) => resetGame(e)}>Play again</button>
+      {gameState ? (
+        ""
+      ) : (
+        <button onClick={(e) => resetGame(e)}>Play again</button>
+      )}
     </>
   );
 }

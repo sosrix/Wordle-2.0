@@ -38,3 +38,30 @@
   font-family: cursive;
   color: #444;
 }
+
+button {
+  width: 150px;
+  height: 40px;
+  margin: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  background: #6e1613;
+  color: white;
+  border: none;
+  border-radius: 3px;
+}
+
+button:hover {
+  transform: scale(1.05);
+  background-color: #4a0d0b;
+}
+
+button:active {
+  transform: scale(0.99);
+}
+
+.gameMessage {
+  font-style: oblique;
+  font-size: 20px;
+  font-weight: 500;
+}
