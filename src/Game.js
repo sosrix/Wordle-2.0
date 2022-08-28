@@ -163,7 +163,7 @@ export default function Game() {
                       : "",
                   }}
                 >
-                  {el}
+                  {el ? <span className="letter">{el}</span> : ""}
                 </div>
               ))}
             </div>

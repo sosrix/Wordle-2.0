@@ -24,19 +24,49 @@
 }
 
 .element {
-  width: 50px;
-  height: 45px;
+  width: 56px;
+  height: 56px;
   border: 2px solid rgb(170, 170, 170);
   border-radius: 5px;
-  background-color: #f9fafc;
-
+  background: #fbfcff;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 25px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
   font-family: cursive;
-  color: #444;
+  color: #393e4c;
+}
+
+.letter {
+  animation-name: PopIn;
+  animation-duration: 0.4s;
+}
+
+.elm-flip {
+  animation-name: FlipIn;
+  animation-duration: 2s;
+  animation-timing-function: ease-in;
+}
+
+@keyframes PopIn {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes FlipIn {
+  0% {
+    transform: rotateX(0);
+  }
+  100% {
+    transform: rotateX(-90deg);
+  }
 }
 
 button {
