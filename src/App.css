@@ -43,12 +43,6 @@
   animation-duration: 0.4s;
 }
 
-.elm-flip {
-  animation-name: FlipIn;
-  animation-duration: 2s;
-  animation-timing-function: ease-in;
-}
-
 @keyframes PopIn {
   from {
     transform: scale(0.7);
@@ -57,15 +51,6 @@
   40% {
     transform: scale(1.1);
     opacity: 1;
-  }
-}
-
-@keyframes FlipIn {
-  0% {
-    transform: rotateX(0);
-  }
-  100% {
-    transform: rotateX(-90deg);
   }
 }
 
