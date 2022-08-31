@@ -151,6 +151,7 @@ export default function Game() {
       <div className="main">
         <div className="grid">
           <p className="gameMessage"> {gameMessage} </p>
+
           {chars.map((line, key) => (
             <div className="line" key={key}>
               {line.map((el, elKey) => (
@@ -174,6 +175,11 @@ export default function Game() {
         ""
       ) : (
         <button onClick={(e) => resetGame(e)}>Play again</button>
+      )}
+      {line > 0 && line < maxLine - 1 ? (
+        <button onClick={(e) => resetGame(e)}>Give up</button>
+      ) : (
+        ""
       )}
     </>
   );
