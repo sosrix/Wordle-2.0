@@ -12,9 +12,26 @@ export default function Game() {
   const [colors, setColors] = useState([]);
   const [gameState, setGameState] = useState(true);
   const [gameMessage, setGameMessage] = useState("Guess the word");
+  const dataWords = [
+    "WINER",
+    "BEFOR",
+    "APPLE",
+    "NEVER",
+    "HELLO",
+    "WORLD",
+    "SUPER",
+    "MOVIE",
+    "FAKER",
+    "LOSER",
+  ];
 
   const check = useCallback(() => {
     console.log("checking ...");
+    if (!dataWords.includes(chars[line].join(""))) {
+      console.log("Word not found");
+      return;
+    }
+
     if (col === maxCol && gameState) {
       const tryWord = chars[line];
 
@@ -64,6 +81,7 @@ export default function Game() {
         );
         return;
       }
+
       if (line >= maxLine) {
         console.log(
           "You're out of lines, Press Play again to try one more time"
@@ -109,18 +127,7 @@ export default function Game() {
   );
   useEffect(() => {
     const randRange = Math.floor(Math.random() * 10);
-    const dataWords = [
-      "WINER",
-      "BEFOR",
-      "APPLE",
-      "NEVER",
-      "HELLO",
-      "WORLD",
-      "SUPER",
-      "MOVIE",
-      "FAKER",
-      "LOSER",
-    ];
+
     setWord([...dataWords[randRange]]);
     console.log("word has been set");
   }, [gameState]);
@@ -176,7 +183,7 @@ export default function Game() {
       ) : (
         <button onClick={(e) => resetGame(e)}>Play again</button>
       )}
-      {line > 0 && line < maxLine - 1 ? (
+      {line > 0 && line < maxLine - 1 && gameState ? (
         <button onClick={(e) => resetGame(e)}>Give up</button>
       ) : (
         ""
