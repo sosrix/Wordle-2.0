@@ -184,7 +184,7 @@ export default function Game() {
         <button onClick={(e) => resetGame(e)}>Play again</button>
       )}
       {line > 0 && line < maxLine - 1 && gameState ? (
-        <button onClick={(e) => resetGame(e)}>Give up</button>
+        <button onClick={(e) => resetGame(e)}>Give up 😔</button>
       ) : (
         ""
       )}
