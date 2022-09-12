@@ -1,7 +1,7 @@
 const { MongoClient } = require("mongodb");
 
 // Connection URL
-const url = "mongodb://localhost:27017";
+const url = "mongodb://0.0.0.0:27017";
 const client = new MongoClient(url);
 
 // Database Name
@@ -12,10 +12,17 @@ async function main() {
   await client.connect();
   console.log("Connected successfully to server");
   const db = client.db(dbName);
-  const collection = db.collection("gamesQueued");
+  const collection = db.collection("liveGames");
 
-  // the following code examples can be pasted here...
+  // the following code inject into the collection liveGames
 
+  const insertResult = await collection.insertMany([
+    { player_one: 1 },
+    { player_two: 2 },
+  ]);
+  console.log("Players created =>", insertResult);
+
+  // done
   return "done.";
 }
 
