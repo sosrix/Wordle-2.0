@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
+import { socketID, socket } from "./clientSideSocket.js";
 
 export default function Game() {
   const [maxLine, maxCol] = [6, 5];
-
   const [chars, setChars] = useState(
     new Array(maxLine).fill(null).map(() => new Array(maxCol).fill(""))
   );
@@ -34,26 +34,13 @@ export default function Game() {
 
     if (col === maxCol && gameState) {
       const tryWord = chars[line];
+      socket.emit("submitted-word", tryWord);
 
-      tryWord.forEach((c, key) => {
-        const realC = word[key];
-        if (realC === c) {
-          const newColors = colors;
-          newColors.push("#0f0");
-          setColors(newColors);
-        } else {
-          const isExist = word.some((el) => el === c);
-          if (isExist) {
-            const newColors = colors;
-            newColors.push("#ff0");
-            setColors(newColors);
-          } else {
-            const newColors = colors;
-            newColors.push("#d4d5ce");
-            setColors(newColors);
-          }
-        }
+      socket.on("treated-colors", (colorsArr) => {
+        let newColArr = colors.concat(colorsArr);
+        setColors(newColArr);
       });
+
       if (tryWord.join("") === word.join("")) {
         // Check for win
         setGameState(false);
