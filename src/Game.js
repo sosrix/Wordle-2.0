@@ -8,7 +8,6 @@ export default function Game() {
   );
   const [line, setLine] = useState(0);
   const [col, setCol] = useState(0);
-  const [word, setWord] = useState([]);
   const [colors, setColors] = useState([]);
   const [gameState, setGameState] = useState(true);
   const [gameMessage, setGameMessage] = useState("Guess the word");
@@ -24,7 +23,6 @@ export default function Game() {
     "FAKER",
     "LOSER",
   ];
-
   const check = useCallback(() => {
     console.log("checking ...");
     if (!dataWords.includes(chars[line].join(""))) {
@@ -37,16 +35,17 @@ export default function Game() {
       socket.emit("submitted-word", tryWord);
 
       socket.on("treated-colors", (colorsArr) => {
-        let newColArr = colors.concat(colorsArr);
-        setColors(newColArr);
+        setColors(colors.concat(colorsArr));
       });
 
-      if (tryWord.join("") === word.join("")) {
-        // Check for win
+      socket.on("end-game-win", (wordFromDB) => {
+        // That's a win
+        console.log("Congrats you found the wordle :", wordFromDB);
         setGameState(false);
         setGameMessage("Game ended, You WON!");
         return;
-      }
+      });
+
       if (line === maxLine - 1) {
         // Check for win
         setGameState(false);
@@ -57,7 +56,7 @@ export default function Game() {
       setLine((line) => line + 1);
       setCol(0);
     }
-  }, [chars, col, line, maxCol, maxLine, word, colors, gameState]);
+  }, [chars, col, line, maxCol, maxLine, colors, gameState]);
 
   const setElement = useCallback(
     (char) => {
@@ -98,26 +97,20 @@ export default function Game() {
   const keyDownListner = useCallback(
     (event) => {
       const { keyCode, key } = event;
-      if (keyCode === 8) {
+      if (keyCode === 8 && gameState) {
         deletLastElment();
       }
 
-      if (keyCode === 13) {
+      if (keyCode === 13 && gameState) {
         return check();
       }
 
-      if (keyCode >= 65 && keyCode <= 90) {
+      if (keyCode >= 65 && keyCode <= 90 && gameState) {
         return setElement(key);
       }
     },
-    [setElement, deletLastElment, check]
+    [setElement, deletLastElment, check, gameState]
   );
-  useEffect(() => {
-    const randRange = Math.floor(Math.random() * 10);
-
-    setWord([...dataWords[randRange]]);
-    console.log("word has been set");
-  }, [gameState]);
 
   useEffect(() => {
     document.addEventListener("keydown", keyDownListner);
@@ -128,6 +121,7 @@ export default function Game() {
   }, [keyDownListner]);
 
   const resetGame = (e) => {
+    socket.disconnect();
     setChars(
       new Array(maxLine).fill(null).map(() => new Array(maxCol).fill(""))
     );
@@ -137,6 +131,7 @@ export default function Game() {
     setGameState(true);
     setGameMessage("Guess the word");
     e.target.blur();
+    socket.connect();
     console.log("RESET");
   };
 

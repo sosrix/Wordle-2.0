@@ -27,17 +27,17 @@ async function main(action, socketID, word, tryWord) {
     const filteredDocs = await collection
       .find({ player_token: socketID })
       .toArray();
-    let newData = filteredDocs[0].random_word;
-    console.log(newData);
+    let wordFromDB = filteredDocs[0].random_word;
+    console.log(wordFromDB);
 
     colorsArr = [];
 
     tryWord.forEach((c, key) => {
-      const realC = newData[key];
+      const realC = wordFromDB[key];
       if (realC === c) {
         colorsArr.push("#0f0");
       } else {
-        const isExist = newData.split("").some((el) => el === c);
+        const isExist = wordFromDB.split("").some((el) => el === c);
         if (isExist) {
           colorsArr.push("#ff0");
         } else {
@@ -45,6 +45,11 @@ async function main(action, socketID, word, tryWord) {
         }
       }
     });
+
+    if (tryWord.join("") === wordFromDB) {
+      // Check for win
+      io.to(socketID).emit("end-game-win", wordFromDB);
+    }
   }
 
   // done
@@ -95,24 +100,4 @@ function setRandomWordle() {
   const randRange = Math.floor(Math.random() * 10);
   word = dataWords[randRange];
   console.log(word, "word has been set");
-}
-
-function checkWord(tryWord) {
-  colorsArr = [];
-
-  tryWord.forEach((c, key) => {
-    const realC = word[key];
-    if (realC === c) {
-      colorsArr.push("#0f0");
-    } else {
-      const isExist = word.split("").some((el) => el === c);
-      if (isExist) {
-        colorsArr.push("#ff0");
-      } else {
-        colorsArr.push("#d4d5ce");
-      }
-    }
-  });
-
-  return colorsArr;
 }
