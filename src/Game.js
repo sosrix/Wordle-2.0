@@ -54,6 +54,8 @@ export default function Game() {
       }
 
       if (line >= maxLine) {
+        socket.disconnect();
+
         console.log(
           "You're out of lines, Press Play again to try one more time"
         );
