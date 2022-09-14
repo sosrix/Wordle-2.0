@@ -11,24 +11,9 @@ export default function Game() {
   const [colors, setColors] = useState([]);
   const [gameState, setGameState] = useState(true);
   const [gameMessage, setGameMessage] = useState("Guess the word");
-  const dataWords = [
-    "WINER",
-    "BEFOR",
-    "APPLE",
-    "NEVER",
-    "HELLO",
-    "WORLD",
-    "SUPER",
-    "MOVIE",
-    "FAKER",
-    "LOSER",
-  ];
+
   const check = useCallback(() => {
     console.log("checking ...");
-    if (!dataWords.includes(chars[line].join(""))) {
-      console.log("Word not found");
-      return;
-    }
 
     if (col === maxCol && gameState) {
       const tryWord = chars[line];

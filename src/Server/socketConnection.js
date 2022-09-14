@@ -1,6 +1,6 @@
 //////////////
 
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 
 // Connection URL
 const url = "mongodb://0.0.0.0:27017";
@@ -18,11 +18,19 @@ async function main(action, socketID, word, tryWord) {
   const collection = db.collection("liveGames");
 
   // the following code inject into the collection liveGames
+
   if (action === "init") {
-    const insertResult = await collection.insertMany([
+    let randRange = Math.floor(Math.random() * 200);
+    const allWords = await collection
+      .find({ _id: ObjectId("63213ca1594160ec3ea18b17") })
+      .toArray();
+    word = allWords[0][randRange].toUpperCase();
+
+    await collection.insertMany([
       { player_token: socketID, random_word: word },
     ]);
   }
+
   if (action === "find") {
     const filteredDocs = await collection
       .find({ player_token: socketID })
@@ -97,7 +105,5 @@ io.on("connection", (socket) => {
 });
 
 function setRandomWordle() {
-  const randRange = Math.floor(Math.random() * 10);
-  word = dataWords[randRange];
-  console.log(word, "word has been set");
+  let randRange = Math.floor(Math.random() * 10);
 }
