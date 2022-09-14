@@ -13,12 +13,10 @@ let colorsArr = [];
 async function main(action, socketID, word, tryWord) {
   // Use connect method to connect to the server
   await client.connect();
-  console.log("Connected successfully to server");
   const db = client.db(dbName);
   const collection = db.collection("liveGames");
 
   // the following code inject into the collection liveGames
-
   if (action === "init") {
     let randRange = Math.floor(Math.random() * 200);
     const allWords = await collection
@@ -29,6 +27,11 @@ async function main(action, socketID, word, tryWord) {
     await collection.insertMany([
       { player_token: socketID, random_word: word },
     ]);
+  }
+  if (action === "disconnect") {
+    await collection.deleteMany({
+      player_token: socketID,
+    });
   }
 
   if (action === "find") {
@@ -66,19 +69,6 @@ async function main(action, socketID, word, tryWord) {
 
 //////////////////////////////
 
-const dataWords = [
-  "WINER",
-  "BEFOR",
-  "APPLE",
-  "NEVER",
-  "HELLO",
-  "WORLD",
-  "SUPER",
-  "MOVIE",
-  "FAKER",
-  "LOSER",
-];
-
 const io = require("socket.io")(3003, {
   cors: {
     origin: ["http://localhost:3000"],
@@ -86,7 +76,6 @@ const io = require("socket.io")(3003, {
 });
 io.on("connection", (socket) => {
   console.log("SOCKET CONNECTING " + socket.id);
-  setRandomWordle();
   main("init", socket.id, word)
     .then(console.log)
     .catch(console.error)
@@ -94,6 +83,9 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", function () {
     console.log("SOCKET DISCONNECTING " + socket.id);
+    main("disconnect", socket.id, word)
+      .catch(console.error)
+      .finally(() => client.close());
   });
   socket.on("submitted-word", (tryWord) => {
     console.log(tryWord);
@@ -103,7 +95,3 @@ io.on("connection", (socket) => {
       .finally(() => client.close());
   });
 });
-
-function setRandomWordle() {
-  let randRange = Math.floor(Math.random() * 10);
-}
