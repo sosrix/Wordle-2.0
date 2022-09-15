@@ -9,7 +9,7 @@ const client = new MongoClient(url);
 // Database Name
 const dbName = "wordleProject";
 let word = "";
-let colorsArr = [];
+let colorObj = {};
 async function main(action, socketID, word, tryWord) {
   // Use connect method to connect to the server
   await client.connect();
@@ -35,24 +35,25 @@ async function main(action, socketID, word, tryWord) {
   }
 
   if (action === "find") {
+    if (!colorObj[socketID]) {
+      colorObj[socketID] = [];
+    }
     const filteredDocs = await collection
       .find({ player_token: socketID })
       .toArray();
     let wordFromDB = filteredDocs[0].random_word;
     console.log(wordFromDB);
 
-    colorsArr = [];
-
     tryWord.forEach((c, key) => {
       const realC = wordFromDB[key];
       if (realC === c) {
-        colorsArr.push("#0f0");
+        colorObj[socketID].push("#0f0");
       } else {
         const isExist = wordFromDB.split("").some((el) => el === c);
         if (isExist) {
-          colorsArr.push("#ff0");
+          colorObj[socketID].push("#ff0");
         } else {
-          colorsArr.push("#d4d5ce");
+          colorObj[socketID].push("#d4d5ce");
         }
       }
     });
@@ -66,7 +67,9 @@ async function main(action, socketID, word, tryWord) {
   // done
   return "done.";
 }
-
+let playersCount = 0;
+let randomRoom = "roomid010101";
+let rooms = {};
 //////////////////////////////
 
 const io = require("socket.io")(3003, {
@@ -75,14 +78,23 @@ const io = require("socket.io")(3003, {
   },
 });
 io.on("connection", (socket) => {
-  console.log("SOCKET CONNECTING " + socket.id);
+  playersCount++;
+  console.log(
+    "SOCKET CONNECTING " + socket.id,
+    "-Total players [" + playersCount + "]"
+  );
+  socket.join(randomRoom);
   main("init", socket.id, word)
     .then(console.log)
     .catch(console.error)
     .finally(() => client.close());
 
   socket.on("disconnect", function () {
-    console.log("SOCKET DISCONNECTING " + socket.id);
+    playersCount--;
+    console.log(
+      "SOCKET DISCONNECTING [" + socket.id,
+      "-Total players " + playersCount + "]"
+    );
     main("disconnect", socket.id, word)
       .catch(console.error)
       .finally(() => client.close());
@@ -91,13 +103,17 @@ io.on("connection", (socket) => {
     console.log(tryWord);
     main("find", socket.id, word, tryWord)
       .then(() => {
-        io.to(socket.id).emit("treated-colors", colorsArr);
+        io.to(randomRoom).emit(
+          "treated-colors",
+          colorObj[socket.id],
+          socket.id
+        );
       })
       .catch(console.error)
       .finally(() => client.close());
   });
 
-  setInterval(function () {
-    io.to(socket.id).emit("treated-colors-secondplayer", []);
-  }, 3000);
+  ///  setInterval(function () {
+  //  socket.emit("treated-colors-secondplayer", []);
+  // }, 3000);
 });

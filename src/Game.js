@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { socketID, socket } from "./clientSideSocket.js";
 
 export default function Game() {
-  const [gameMode, setGameMode] = useState("2Players");
+  const [gameMode, setGameMode] = useState("solo");
 
   const [maxLine, maxCol] = [6, 5];
   const [chars, setChars] = useState(
@@ -21,8 +21,12 @@ export default function Game() {
   const [colorsP2, setColorsP2] = useState([]);
   /////////////////////////
 
-  socket.on("treated-colors-secondplayer", (colorsArr) => {
-    setColorsP2(colors.concat(colorsArr));
+  socket.on("treated-colors", (colorsArr, otherSocket) => {
+    if (socketID === otherSocket) {
+      setColors(colorsArr);
+    } else {
+      setColorsP2(colorsArr);
+    }
   });
 
   const check = useCallback(() => {
@@ -31,9 +35,6 @@ export default function Game() {
     if (col === maxCol && gameState) {
       const tryWord = chars[line];
       socket.emit("submitted-word", tryWord);
-      socket.on("treated-colors", (colorsArr) => {
-        setColors(colors.concat(colorsArr));
-      });
 
       socket.on("end-game-win", (wordFromDB) => {
         // That's a win
@@ -161,7 +162,7 @@ export default function Game() {
           ))}
         </div>
 
-        {gameMode === "2Players" ? (
+        {gameMode === "solo" ? (
           <div className="grid">
             <p className="gameMessage"> {gameMessage} </p>
 
