@@ -1,5 +1,6 @@
 import "./App.css";
 import Game from "./Game";
+import TwoPlayers from "./2Players";
 
 function App() {
   return (

@@ -22,10 +22,10 @@ async function main(action, socketID, word, tryWord) {
     const allWords = await collection
       .find({ _id: ObjectId("63213ca1594160ec3ea18b17") })
       .toArray();
-    word = allWords[0][randRange].toUpperCase();
+    word = await allWords[0][randRange].toUpperCase();
 
     await collection.insertMany([
-      { player_token: socketID, random_word: word },
+      { player_token: socketID, random_word: await word },
     ]);
   }
   if (action === "disconnect") {
@@ -90,8 +90,14 @@ io.on("connection", (socket) => {
   socket.on("submitted-word", (tryWord) => {
     console.log(tryWord);
     main("find", socket.id, word, tryWord)
-      .then(() => io.to(socket.id).emit("treated-colors", colorsArr))
+      .then(() => {
+        io.to(socket.id).emit("treated-colors", colorsArr);
+      })
       .catch(console.error)
       .finally(() => client.close());
   });
+
+  setInterval(function () {
+    io.to(socket.id).emit("treated-colors-secondplayer", []);
+  }, 3000);
 });
