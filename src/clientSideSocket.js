@@ -5,3 +5,5 @@ export let socketID = "";
 socket.on("connect", () => {
   socketID = socket.id;
 });
+console.log(socketID);
+socket.disconnect();

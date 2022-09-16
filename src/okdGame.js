@@ -1,7 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { socketID, socket } from "./clientSideSocket.js";
 
-export default function TwoPlayers() {
+export default function Game() {
+  const [gameMode, setGameMode] = useState("2Players");
+
   const [maxLine, maxCol] = [6, 5];
   const [chars, setChars] = useState(
     new Array(maxLine).fill(null).map(() => new Array(maxCol).fill(""))
@@ -19,13 +21,16 @@ export default function TwoPlayers() {
   const [colorsP2, setColorsP2] = useState([]);
   /////////////////////////
 
+  socket.on("treated-colors-secondplayer", (colorsArr) => {
+    setColorsP2(colors.concat(colorsArr));
+  });
+
   const check = useCallback(() => {
     console.log("checking ...");
 
     if (col === maxCol && gameState) {
       const tryWord = chars[line];
       socket.emit("submitted-word", tryWord);
-
       socket.on("treated-colors", (colorsArr) => {
         setColors(colors.concat(colorsArr));
       });
@@ -131,10 +136,12 @@ export default function TwoPlayers() {
 
   return (
     <>
+      {" "}
+      <button onClick={() => setGameMode("2Players")}>2Players mode </button>
+      <button onClick={() => setGameMode("solo")}>Play Alone </button>
       <div className="main">
         <div className="grid">
           <p className="gameMessage"> {gameMessage} </p>
-          {socketID ? socketID : ""}
           {chars.map((line, key) => (
             <div className="line" key={key}>
               {line.map((el, elKey) => (
@@ -153,34 +160,30 @@ export default function TwoPlayers() {
             </div>
           ))}
         </div>
-        {
-          ///////////////////////PLAYER 2///////////////////////////////////////////////
-        }
-        <div className="grid">
-          <p className="gameMessage"> {gameMessage} </p>
 
-          {charsP2.map((line, key) => (
-            <div className="line" key={key}>
-              {line.map((el, elKey) => (
-                <div
-                  key={elKey}
-                  className="element"
-                  style={{
-                    backgroundColor: colorsP2[key * maxCol + elKey]
-                      ? colorsP2[key * maxCol + elKey]
-                      : "",
-                  }}
-                >
-                  {el ? <span className="letter">{el}</span> : ""}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+        {gameMode === "2Players" ? (
+          <div className="grid">
+            <p className="gameMessage"> {gameMessage} </p>
 
-        {
-          ///////////////////////PLAYER 2///////////////////////////////////////////////
-        }
+            {charsP2.map((line, key) => (
+              <div className="line" key={key}>
+                {line.map((el, elKey) => (
+                  <div
+                    key={elKey}
+                    className="element"
+                    style={{
+                      backgroundColor: colorsP2[key * maxCol + elKey]
+                        ? colorsP2[key * maxCol + elKey]
+                        : "",
+                    }}
+                  ></div>
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : (
+          ""
+        )}
       </div>
       {gameState ? (
         ""

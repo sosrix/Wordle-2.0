@@ -68,8 +68,8 @@ async function main(action, socketID, word, tryWord) {
   return "done.";
 }
 let playersCount = 0;
-let randomRoom = "roomid010101";
-let rooms = {};
+let randomRoom = "";
+let roomsMap = { roomid010101: 0 };
 //////////////////////////////
 
 const io = require("socket.io")(3003, {
@@ -83,13 +83,40 @@ io.on("connection", (socket) => {
     "SOCKET CONNECTING " + socket.id,
     "-Total players [" + playersCount + "]"
   );
-  socket.join(randomRoom);
+
+  socket.on("create-room", (room) => {
+    roomsMap[room] = 1;
+    randomRoom = room;
+    socket.emit("isExist", room);
+    socket.join(room);
+    console.log(roomsMap);
+  });
+
+  socket.on("check-room", (room) => {
+    if (!roomsMap[room]) {
+      console.log("This room doesn't exist, try creating one :)");
+    }
+    if (roomsMap[room] >= 2) {
+      console.log(room + "is full, try creating one :)");
+    }
+    if (roomsMap[room] < 2) {
+      socket.emit("isExist", room);
+      randomRoom = room;
+      roomsMap[room]++;
+      console.log("You have been added to the room", roomsMap[room]);
+      socket.join(room);
+    }
+  });
+
   main("init", socket.id, word)
     .then(console.log)
     .catch(console.error)
     .finally(() => client.close());
 
   socket.on("disconnect", function () {
+    if (roomsMap[randomRoom] > 0) {
+      roomsMap[randomRoom]--;
+    }
     playersCount--;
     console.log(
       "SOCKET DISCONNECTING [" + socket.id,
@@ -112,8 +139,4 @@ io.on("connection", (socket) => {
       .catch(console.error)
       .finally(() => client.close());
   });
-
-  ///  setInterval(function () {
-  //  socket.emit("treated-colors-secondplayer", []);
-  // }, 3000);
 });

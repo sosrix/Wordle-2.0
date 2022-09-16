@@ -1,9 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { socketID, socket } from "./clientSideSocket.js";
+import { useLocation } from "react-router-dom";
 
 export default function Game() {
-  const [gameMode, setGameMode] = useState("solo");
+  const { state } = useLocation();
 
+  const [gameMode, setGameMode] = useState("solo");
+  socket.connect();
   const [maxLine, maxCol] = [6, 5];
   const [chars, setChars] = useState(
     new Array(maxLine).fill(null).map(() => new Array(maxCol).fill(""))
@@ -137,12 +140,12 @@ export default function Game() {
 
   return (
     <>
-      {" "}
-      <button onClick={() => setGameMode("2Players")}>2Players mode </button>
-      <button onClick={() => setGameMode("solo")}>Play Alone </button>
       <div className="main">
         <div className="grid">
-          <p className="gameMessage"> {gameMessage} </p>
+          <p className="gameMessage">
+            {" "}
+            {gameMessage}, {state.value}
+          </p>
           {chars.map((line, key) => (
             <div className="line" key={key}>
               {line.map((el, elKey) => (
@@ -164,7 +167,7 @@ export default function Game() {
 
         {gameMode === "solo" ? (
           <div className="grid">
-            <p className="gameMessage"> {gameMessage} </p>
+            <p className="gameMessage"> Your opponent progress </p>
 
             {charsP2.map((line, key) => (
               <div className="line" key={key}>
