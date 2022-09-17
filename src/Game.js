@@ -6,7 +6,6 @@ export default function Game() {
   const { state } = useLocation();
 
   const [gameMode, setGameMode] = useState("solo");
-  socket.connect();
   const [maxLine, maxCol] = [6, 5];
   const [chars, setChars] = useState(
     new Array(maxLine).fill(null).map(() => new Array(maxCol).fill(""))

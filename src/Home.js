@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { socket } from "./clientSideSocket";
+import { socket, socketID } from "./clientSideSocket";
 
 export default function Home() {
   const [room, setRoom] = useState("");
@@ -30,12 +30,20 @@ export default function Home() {
   }, []);
 
   function createGame() {
-    const uid = function () {
-      return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    };
+    // const uid = function () {
+    //   return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    // };
+    // socket.connect();
+    // socket.emit("create-room", uid());
+  }
 
+  socket.on("GameFound", (roomQueuedID) => {
+    socket.emit("create-room", roomQueuedID);
+  });
+
+  function queueUp() {
     socket.connect();
-    socket.emit("create-room", uid());
+    socket.emit("check-queue", socket.id);
   }
 
   return (
@@ -43,10 +51,10 @@ export default function Home() {
       <div className="main">
         <div className="grid">
           <p className="gameMessage"> Hello there! </p>
+          <button onClick={queueUp}>Queue up for a game</button>
           <button onClick={() => createGame()}>Create a game </button>
           <Link to="/game">to game</Link>
           <button onClick={joinGame}>Join a game</button>
-
           <input
             type="text"
             id="room"
@@ -60,5 +68,3 @@ export default function Home() {
     </>
   );
 }
-
-// <button>Queue up for a game</button>

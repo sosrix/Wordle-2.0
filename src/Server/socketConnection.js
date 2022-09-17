@@ -9,8 +9,13 @@ const client = new MongoClient(url);
 // Database Name
 const dbName = "wordleProject";
 let word = "";
+let randomRoom = "";
+let playersCount = 0;
+let roomsMap = { roomid010101: 0 };
+let wordlesMap = {};
+let queueRooms = [];
 let colorObj = {};
-async function main(action, socketID, word, tryWord) {
+async function main(action, socketID, word, tryWord, randomRoom) {
   // Use connect method to connect to the server
   await client.connect();
   const db = client.db(dbName);
@@ -24,9 +29,26 @@ async function main(action, socketID, word, tryWord) {
       .toArray();
     word = await allWords[0][randRange].toUpperCase();
 
-    await collection.insertMany([
-      { player_token: socketID, random_word: await word },
-    ]);
+    if (roomsMap[randomRoom] === 0) {
+      await collection.insertMany([
+        { player_token: socketID, random_word: await word, roomID: randomRoom },
+      ]);
+      roomsMap[randomRoom] = 1;
+      wordlesMap[randomRoom] = await word;
+      console.log(roomsMap[randomRoom]);
+    } else if (roomsMap[randomRoom] === 1) {
+      console.log(wordlesMap);
+      await collection.insertMany([
+        {
+          player_token: socketID,
+          random_word: await wordlesMap[randomRoom],
+          roomID: randomRoom,
+        },
+      ]);
+      roomsMap[randomRoom] = 2;
+    } else {
+      console.log("room doesn't exist or full");
+    }
   }
   if (action === "disconnect") {
     await collection.deleteMany({
@@ -67,9 +89,6 @@ async function main(action, socketID, word, tryWord) {
   // done
   return "done.";
 }
-let playersCount = 0;
-let randomRoom = "";
-let roomsMap = { roomid010101: 0 };
 //////////////////////////////
 
 const io = require("socket.io")(3003, {
@@ -85,33 +104,54 @@ io.on("connection", (socket) => {
   );
 
   socket.on("create-room", (room) => {
-    roomsMap[room] = 1;
+    if (!roomsMap[room] && roomsMap[room] !== 0) {
+      roomsMap[room] = 0;
+    }
+    if (roomsMap[room] > 2) {
+      console.log("prblm");
+    }
     randomRoom = room;
     socket.emit("isExist", room);
     socket.join(room);
     console.log(roomsMap);
+    console.log(socket.id);
+
+    main("init", socket.id, word, "null", randomRoom)
+      .then(console.log)
+      .catch(console.error);
+  });
+
+  socket.on("check-queue", (socketID) => {
+    const roomIdGen = function () {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    };
+    if (queueRooms.length === 2 && !queueRooms.includes(socketID)) {
+      const roomQ = queueRooms[1];
+      socket.join(queueRooms[1]);
+      console.log(queueRooms);
+      socket.to(queueRooms[0]).emit("GameFound", roomQ);
+
+      queueRooms = [];
+    } else if (queueRooms.length === 0) {
+      queueRooms.push(socket.id);
+      queueRooms.push(roomIdGen());
+      socket.join(queueRooms[1]);
+    }
   });
 
   socket.on("check-room", (room) => {
-    if (!roomsMap[room]) {
-      console.log("This room doesn't exist, try creating one :)");
-    }
-    if (roomsMap[room] >= 2) {
-      console.log(room + "is full, try creating one :)");
-    }
-    if (roomsMap[room] < 2) {
+    if (!roomsMap[room] && roomsMap[room] !== 0) {
+      console.log(`This ${room} doesn't exist, try creating one :)`);
+    } else {
       socket.emit("isExist", room);
       randomRoom = room;
-      roomsMap[room]++;
-      console.log("You have been added to the room", roomsMap[room]);
       socket.join(room);
+      console.log("You have been added to the room", roomsMap[room]);
+      main("init", socket.id, word, "null", randomRoom)
+        .then(console.log)
+        .catch(console.error);
     }
   });
-
-  main("init", socket.id, word)
-    .then(console.log)
-    .catch(console.error)
-    .finally(() => client.close());
 
   socket.on("disconnect", function () {
     if (roomsMap[randomRoom] > 0) {
@@ -136,7 +176,6 @@ io.on("connection", (socket) => {
           socket.id
         );
       })
-      .catch(console.error)
-      .finally(() => client.close());
+      .catch(console.error);
   });
 });
