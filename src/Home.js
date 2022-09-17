@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { socket, socketID } from "./clientSideSocket";
-
+import Tip from "./tip";
 export default function Home() {
   const [room, setRoom] = useState("");
 
@@ -18,7 +18,7 @@ export default function Home() {
     if (room === "") {
       return;
     }
-    socket.connect();
+    console.log("sendind request to check room");
     socket.emit("check-room", room);
   };
   useEffect(() => {
@@ -30,20 +30,25 @@ export default function Home() {
   }, []);
 
   function createGame() {
-    // const uid = function () {
-    //   return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    // };
-    // socket.connect();
-    // socket.emit("create-room", uid());
+    const uid = function () {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    };
+    socket.emit("create-room", uid());
   }
+  useEffect(() => {
+    socket.on("Wait-other-player", (room) => {
+      console.log(room);
+    });
+    socket.on("found-game", (room) => {
+      console.log("recieve confirmation of room found");
+      socket.emit("initialize-game", room);
+    });
 
-  socket.on("GameFound", (roomQueuedID) => {
-    socket.emit("create-room", roomQueuedID);
-  });
+    socket.on("GameFound", (roomQueuedID) => {});
+  }, []);
 
   function queueUp() {
-    socket.connect();
-    socket.emit("check-queue", socket.id);
+    socket.emit("check-queue");
   }
 
   return (
@@ -51,11 +56,22 @@ export default function Home() {
       <div className="main">
         <div className="grid">
           <p className="gameMessage"> Hello there! </p>
-          <button onClick={queueUp}>Queue up for a game</button>
-          <button onClick={() => createGame()}>Create a game </button>
-          <Link to="/game">to game</Link>
-          <button onClick={joinGame}>Join a game</button>
+
+          <button className="button-53" role="button" onClick={queueUp}>
+            Queue up for a game
+          </button>
+          <button className="button-53" role="button" onClick={createGame}>
+            Create a game
+          </button>
+          <p>________________OR_________________ </p>
+
+          <button className="button-53" role="button" onClick={joinGame}>
+            Join an existing game
+          </button>
+
           <input
+            className="inpt-join-game"
+            placeholder="ROOM TOKEN"
             type="text"
             id="room"
             name="room"
@@ -64,6 +80,11 @@ export default function Home() {
             autoComplete="off"
           />
         </div>
+      </div>
+      <div className="tips-container">
+        <Tip bgColor="#5e3c55" theTip="WhatIsWordle" id="tip1" />
+        <Tip bgColor="#1d3b55" theTip="Rules" id="tip2" />
+        <Tip bgColor="#6e5c55" theTip="extraRules" id="tip3" />
       </div>
     </>
   );

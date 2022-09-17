@@ -22,14 +22,15 @@ export default function Game() {
   );
   const [colorsP2, setColorsP2] = useState([]);
   /////////////////////////
-
-  socket.on("treated-colors", (colorsArr, otherSocket) => {
-    if (socketID === otherSocket) {
-      setColors(colorsArr);
-    } else {
-      setColorsP2(colorsArr);
-    }
-  });
+  useEffect(() => {
+    socket.on("treated-colors", (colorsArr, otherSocket) => {
+      if (socketID === otherSocket) {
+        setColors(colorsArr);
+      } else {
+        setColorsP2(colorsArr);
+      }
+    });
+  }, []);
 
   const check = useCallback(() => {
     console.log("checking ...");

@@ -54,29 +54,109 @@
   }
 }
 
-button {
-  width: 150px;
-  height: 40px;
-  margin: 10px;
-  font-size: 16px;
-  font-weight: 700;
-  background: #6e1613;
-  color: white;
-  border: none;
-  border-radius: 3px;
-}
-
-button:hover {
-  transform: scale(1.05);
-  background-color: #4a0d0b;
-}
-
-button:active {
-  transform: scale(0.99);
-}
-
 .gameMessage {
   font-style: oblique;
   font-size: 20px;
   font-weight: 500;
+}
+
+/* CSS */
+.button-53 {
+  background-color: #3dd1e7;
+  border: 0 solid #e5e7eb;
+  box-sizing: border-box;
+  color: #000000;
+  display: flex;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  justify-content: center;
+  line-height: 1.75rem;
+  padding: 0.75rem 1.65rem;
+  position: relative;
+  text-align: center;
+  text-decoration: none #000000 solid;
+  width: 100%;
+  max-width: 460px;
+  position: relative;
+  cursor: pointer;
+  transform: rotate(-2deg);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  margin: 14px;
+}
+
+.button-53:focus {
+  outline: 0;
+}
+
+.button-53:after {
+  content: "";
+  position: absolute;
+  border: 1px solid #000000;
+  bottom: 4px;
+  left: 4px;
+  width: calc(100% - 1px);
+  height: calc(100% - 1px);
+}
+
+.button-53:hover:after {
+  bottom: 2px;
+  left: 2px;
+}
+
+@media (min-width: 768px) {
+  .button-53 {
+    padding: 0.75rem 3rem;
+    font-size: 1.25rem;
+  }
+}
+
+.inpt-join-game {
+  font-family: inherit;
+  width: 100%;
+  border: 0;
+  font-weight: 360;
+  text-align: center;
+
+  border-bottom: 2px solid #9b9b9b;
+  outline: 0;
+  font-size: 1.4rem;
+  font-weight: lighter;
+  color: #11998e;
+  padding: 7px 0;
+  background: transparent;
+  margin-left: 5%;
+}
+
+.tips-container {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 5px;
+}
+/* The alert message box */
+.info {
+  padding: 20px;
+  color: white;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 4px;
+}
+
+/* The close button */
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* When moving the mouse over the close button */
+.closebtn:hover {
+  color: black;
 }

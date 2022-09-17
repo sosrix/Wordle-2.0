@@ -2,7 +2,6 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Game from "./Game";
 import Home from "./Home";
-import { socketID, socket } from "./clientSideSocket.js";
 import { useEffect, useState, useCallback } from "react";
 
 function App() {
