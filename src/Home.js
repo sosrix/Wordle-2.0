@@ -1,16 +1,18 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { socket, socketID } from "./clientSideSocket";
+import { useNavigate } from "react-router-dom";
+import { socket } from "./clientSideSocket";
 import Tip from "./tip";
+import LoaderWrapper from "./loaderwrapper";
+
 export default function Home() {
   const [room, setRoom] = useState("");
+  const [loader, setLoader] = useState(false);
+  const [token, setToken] = useState("");
 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setRoom(e.target.value);
-
-    console.log("value of room input:", e.target.value);
   };
 
   const joinGame = (e) => {
@@ -19,53 +21,83 @@ export default function Home() {
       return;
     }
     console.log("sendind request to check room");
-    socket.emit("check-room", room);
+    socket.emit("check-room", room.toLowerCase());
   };
-  useEffect(() => {
-    socket.on("isExist", (value) => {
-      if (value) {
-        navigate("/game", { state: { value } });
-      }
-    });
-  }, []);
 
   function createGame() {
     const uid = function () {
       return Date.now().toString(36) + Math.random().toString(36).substr(2);
     };
     socket.emit("create-room", uid());
+    setLoader("waiting-room");
   }
   useEffect(() => {
+    socket.on("isExist", (value) => {
+      if (value) {
+        navigate("/game");
+      }
+    });
+
+    socket.on("disconnect", (value) => {
+      socket.connect();
+    });
     socket.on("Wait-other-player", (room) => {
       console.log(room);
+      setToken(room);
     });
     socket.on("found-game", (room) => {
+      setLoader(false);
       console.log("recieve confirmation of room found");
       socket.emit("initialize-game", room);
     });
-
-    socket.on("GameFound", (roomQueuedID) => {});
   }, []);
 
   function queueUp() {
     socket.emit("check-queue");
+    setLoader("in-queue");
+  }
+
+  function exitQueue() {
+    socket.disconnect();
+    setLoader(false);
   }
 
   return (
     <>
+      <LoaderWrapper>
+        <LoaderWrapper.loadingAnimation />
+      </LoaderWrapper>
       <div className="main">
+        {loader ? (
+          <div className="user-message">
+            {loader === "waiting-room" ? (
+              <div>
+                Share with your friend
+                <p className="token"> Room token : {token}</p>
+              </div>
+            ) : (
+              <p>You are in Queue</p>
+            )}
+            <button className="in-game-button" onClick={exitQueue}>
+              Exit Queue
+            </button>
+            <LoaderWrapper.loadingAnimation />
+          </div>
+        ) : (
+          ""
+        )}
         <div className="grid">
-          <p className="gameMessage"> Hello there! </p>
+          <p className="gameMessage"> </p>
 
-          <button className="button-53" role="button" onClick={queueUp}>
+          <button className="button-53" onClick={queueUp}>
             Queue up for a game
           </button>
-          <button className="button-53" role="button" onClick={createGame}>
+          <button className="button-53" onClick={createGame}>
             Create a game
           </button>
           <p>________________OR_________________ </p>
 
-          <button className="button-53" role="button" onClick={joinGame}>
+          <button className="button-53" onClick={joinGame}>
             Join an existing game
           </button>
 
@@ -76,7 +108,7 @@ export default function Home() {
             id="room"
             name="room"
             onChange={handleChange}
-            value={room}
+            value={room.toLocaleUpperCase()}
             autoComplete="off"
           />
         </div>

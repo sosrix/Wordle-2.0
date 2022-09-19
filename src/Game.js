@@ -1,11 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { socketID, socket } from "./clientSideSocket.js";
-import { useLocation } from "react-router-dom";
+import LoaderWrapper from "./loaderwrapper";
 
 export default function Game() {
-  const { state } = useLocation();
-
-  const [gameMode, setGameMode] = useState("solo");
+  const [gameAuth, setGameAuth] = useState(true);
   const [maxLine, maxCol] = [6, 5];
   const [chars, setChars] = useState(
     new Array(maxLine).fill(null).map(() => new Array(maxCol).fill(""))
@@ -22,12 +21,41 @@ export default function Game() {
   );
   const [colorsP2, setColorsP2] = useState([]);
   /////////////////////////
+  const navigate = useNavigate();
+
   useEffect(() => {
+    if (!gameAuth) {
+      socket.disconnect();
+      navigate("/");
+    }
+  }, [gameAuth]);
+
+  useEffect(() => {
+    socket.emit("check-authentication", socketID);
+    socket.on("authentication", (value) => {
+      setGameAuth(value);
+    });
+
     socket.on("treated-colors", (colorsArr, otherSocket) => {
       if (socketID === otherSocket) {
         setColors(colorsArr);
       } else {
         setColorsP2(colorsArr);
+      }
+    });
+
+    socket.on("end-game", (wordFromDB, result) => {
+      if (result === "win") {
+        // That's a win
+        console.log("Congrats you found the wordle :", wordFromDB);
+        setGameState(false);
+        setGameMessage("Congratulations you found the wordle!");
+        return;
+      }
+      if (result === "lost") {
+        console.log("Sadly you didn't find the wordle :", wordFromDB);
+        setGameState(false);
+        setGameMessage(`Sadly you didn't find the wordle! ${wordFromDB}`);
       }
     });
   }, []);
@@ -39,19 +67,7 @@ export default function Game() {
       const tryWord = chars[line];
       socket.emit("submitted-word", tryWord);
 
-      socket.on("end-game-win", (wordFromDB) => {
-        // That's a win
-        console.log("Congrats you found the wordle :", wordFromDB);
-        setGameState(false);
-        setGameMessage("Game ended, You WON!");
-        return;
-      });
-
       if (line === maxLine - 1) {
-        // Check for win
-        setGameState(false);
-        setGameMessage("Game ended, You LOST!");
-
         return;
       }
       setLine((line) => line + 1);
@@ -124,6 +140,7 @@ export default function Game() {
   }, [keyDownListner]);
 
   const resetGame = (e) => {
+    setGameAuth(false);
     socket.disconnect();
     setChars(
       new Array(maxLine).fill(null).map(() => new Array(maxCol).fill(""))
@@ -134,18 +151,13 @@ export default function Game() {
     setGameState(true);
     setGameMessage("Guess the word");
     e.target.blur();
-    socket.connect();
-    console.log("RESET");
   };
 
   return (
-    <>
+    <div className="game">
       <div className="main">
         <div className="grid">
-          <p className="gameMessage">
-            {" "}
-            {gameMessage}, {state.value}
-          </p>
+          <p className="gameMessage">{gameMessage}</p>
           {chars.map((line, key) => (
             <div className="line" key={key}>
               {line.map((el, elKey) => (
@@ -164,41 +176,43 @@ export default function Game() {
             </div>
           ))}
         </div>
+        <div className="grid">
+          <p className="gameMessage"> Your nemesis's progress </p>
 
-        {gameMode === "solo" ? (
-          <div className="grid">
-            <p className="gameMessage"> Your opponent progress </p>
-
-            {charsP2.map((line, key) => (
-              <div className="line" key={key}>
-                {line.map((el, elKey) => (
-                  <div
-                    key={elKey}
-                    className="element"
-                    style={{
-                      backgroundColor: colorsP2[key * maxCol + elKey]
-                        ? colorsP2[key * maxCol + elKey]
-                        : "",
-                    }}
-                  ></div>
-                ))}
-              </div>
-            ))}
-          </div>
-        ) : (
-          ""
-        )}
+          {charsP2.map((line, key) => (
+            <div className="line" key={key}>
+              {line.map((el, elKey) => (
+                <div
+                  key={elKey}
+                  className="element"
+                  style={{
+                    backgroundColor: colorsP2[key * maxCol + elKey]
+                      ? colorsP2[key * maxCol + elKey]
+                      : "",
+                  }}
+                ></div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
       {gameState ? (
         ""
       ) : (
-        <button onClick={(e) => resetGame(e)}>Play again</button>
+        <button className="in-game-button" onClick={(e) => resetGame(e)}>
+          Play again
+        </button>
       )}
       {line > 0 && line < maxLine - 1 && gameState ? (
-        <button onClick={(e) => resetGame(e)}>Give up 😔</button>
+        <button className="in-game-button" onClick={(e) => resetGame(e)}>
+          Give up 😔
+        </button>
       ) : (
         ""
       )}
-    </>
+      <LoaderWrapper>
+        <LoaderWrapper.loadingAnimation />
+      </LoaderWrapper>
+    </div>
   );
 }

@@ -21,9 +21,9 @@ export default function Tip({ bgColor, theTip, id }) {
   }
   return (
     <div className="info" style={{ backgroundColor: bgColor }} id={id}>
-      <span className="closebtn" onClick={closeTip}>
+      {/* <span className="closebtn" onClick={closeTip}>
         &times;
-      </span>
+      </span> */}
       {obj[theTip]}
     </div>
   );
