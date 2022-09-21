@@ -8,19 +8,27 @@ export default function Home() {
   const [room, setRoom] = useState("");
   const [loader, setLoader] = useState(false);
   const [token, setToken] = useState("");
-
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setRoom(e.target.value);
   };
 
+  function queueUp() {
+    socket.emit("check-queue");
+    setLoader("in-queue");
+  }
+
+  function exitQueue() {
+    socket.disconnect();
+    setLoader(false);
+  }
+
   const joinGame = (e) => {
     e.preventDefault();
     if (room === "") {
       return;
     }
-    console.log("sendind request to check room");
     socket.emit("check-room", room.toLowerCase());
   };
 
@@ -52,71 +60,67 @@ export default function Home() {
     });
   }, []);
 
-  function queueUp() {
-    socket.emit("check-queue");
-    setLoader("in-queue");
-  }
-
-  function exitQueue() {
-    socket.disconnect();
-    setLoader(false);
-  }
-
   return (
     <>
       <LoaderWrapper>
         <LoaderWrapper.loadingAnimation />
       </LoaderWrapper>
-      <div className="main">
-        {loader ? (
-          <div className="user-message">
-            {loader === "waiting-room" ? (
-              <div>
-                Share with your friend
-                <p className="token"> Room token : {token}</p>
-              </div>
-            ) : (
-              <p>You are in Queue</p>
-            )}
-            <button className="in-game-button" onClick={exitQueue}>
-              Exit Queue
+
+      <div className="home">
+        <div>
+          {loader ? (
+            <div className="user-message">
+              {loader === "waiting-room" ? (
+                <div>
+                  Share with your friend
+                  <p className="token"> Room token : {token}</p>
+                </div>
+              ) : (
+                <p>You are in Queue</p>
+              )}
+              <button onClick={exitQueue}>
+                <span>Exit Queue</span>
+                <i></i>
+              </button>
+              <LoaderWrapper.loadingAnimation />
+            </div>
+          ) : (
+            ""
+          )}
+          <div className="grid">
+            <p className="gameMessage">Start playing!</p>
+            <button onClick={queueUp}>
+              <span> Queue up</span>
+              <i></i>
             </button>
-            <LoaderWrapper.loadingAnimation />
+
+            <button onClick={createGame}>
+              <span> Create a game</span>
+              <i></i>
+            </button>
+
+            <p className="seperater"></p>
+            <button onClick={joinGame}>
+              <span> Join a game</span>
+              <i></i>
+            </button>
+            <input
+              className="inpt-join-game"
+              placeholder="ROOM TOKEN"
+              type="text"
+              id="room"
+              name="room"
+              onChange={handleChange}
+              value={room.toLocaleUpperCase()}
+              autoComplete="off"
+            />
           </div>
-        ) : (
-          ""
-        )}
-        <div className="grid">
-          <p className="gameMessage"> </p>
-
-          <button className="button-53" onClick={queueUp}>
-            Queue up for a game
-          </button>
-          <button className="button-53" onClick={createGame}>
-            Create a game
-          </button>
-          <p>________________OR_________________ </p>
-
-          <button className="button-53" onClick={joinGame}>
-            Join an existing game
-          </button>
-
-          <input
-            className="inpt-join-game"
-            placeholder="ROOM TOKEN"
-            type="text"
-            id="room"
-            name="room"
-            onChange={handleChange}
-            value={room.toLocaleUpperCase()}
-            autoComplete="off"
-          />
         </div>
       </div>
       <div className="tips-container">
-        <Tip bgColor="#5e3c55" theTip="WhatIsWordle" id="tip1" />
-        <Tip bgColor="#1d3b55" theTip="Rules" id="tip2" />
-        <Tip bgColor="#6e5c55" theTip="extraRules" id="tip3" />
+        <Tip bgColor="#6e5c5511" theTip="WhatIsWordle" id="tip1" />
+        <Tip bgColor="#6e5c5511" theTip="Rules" id="tip2" />
+        <Tip bgColor="#6e5c5511" theTip="extraRules" id="tip3" />
       </div>
     </>
   );

@@ -13,7 +13,8 @@ export default function Game() {
   const [col, setCol] = useState(0);
   const [colors, setColors] = useState([]);
   const [gameState, setGameState] = useState(true);
-  const [gameMessage, setGameMessage] = useState("Guess the word");
+  const [gameMessage, setGameMessage] = useState("Start guessing the wordle");
+  const navigate = useNavigate();
 
   ////////PLAYER 2//////////
   const [charsP2, setCharP2] = useState(
@@ -21,7 +22,6 @@ export default function Game() {
   );
   const [colorsP2, setColorsP2] = useState([]);
   /////////////////////////
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!gameAuth) {
@@ -199,13 +199,15 @@ export default function Game() {
       {gameState ? (
         ""
       ) : (
-        <button className="in-game-button" onClick={(e) => resetGame(e)}>
-          Play again
+        <button onClick={(e) => resetGame(e)}>
+          <span> Play again</span>
+          <i></i>
         </button>
       )}
       {line > 0 && line < maxLine - 1 && gameState ? (
-        <button className="in-game-button" onClick={(e) => resetGame(e)}>
-          Give up 😔
+        <button onClick={(e) => resetGame(e)}>
+          <span> Give up 😔</span>
+          <i></i>
         </button>
       ) : (
         ""

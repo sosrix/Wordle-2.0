@@ -106,13 +106,13 @@ async function main(action, socketID, tryWord, randomRoom) {
     tryWord.forEach((c, key) => {
       const realC = wordFromDB[key];
       if (realC === c) {
-        colorObj[socketID].push("#0f0");
+        colorObj[socketID].push("#43aa13");
       } else {
         const isExist = wordFromDB.split("").some((el) => el === c);
         if (isExist) {
-          colorObj[socketID].push("#ff0");
+          colorObj[socketID].push("#aa9f00");
         } else {
-          colorObj[socketID].push("#d4d5ce");
+          colorObj[socketID].push("#363636");
         }
       }
     });
