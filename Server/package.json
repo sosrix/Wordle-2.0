@@ -4,6 +4,7 @@
   "description": "",
   "main": "dbConnection.js",
   "scripts": {
+    "start": "node socketConnection.js",
     "devStart": "nodemon socketConnection.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
