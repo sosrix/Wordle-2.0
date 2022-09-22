@@ -4,12 +4,12 @@ const { MongoClient, ObjectId } = require("mongodb");
 // setting up socket.io
 const io = require("socket.io")(3003, {
   cors: {
-    origin: ["http://localhost:3000"],
+    origin: ["https://wordle2-0.herokuapp.com"],
   },
 });
 
 // Connection URL
-const url = "mongodb://0.0.0.0:27017";
+const url = process.env.MONGODB_URI;
 const client = new MongoClient(url);
 
 // Database Name
