@@ -4,7 +4,7 @@ export default function Tip({ bgColor, theTip, id }) {
   let tipBtn = "";
   const obj = {
     WhatIsWordle:
-      "Wordle is a daily word game where players have six attempts to guess a five letter word. Feedback for each guess is given in the form of colored  tiles to indicate if letters match the correct position.",
+      "Wordle is a guessing word game where players have six attempts to guess a five letter word. Feedback for each guess is given in the form of colored  tiles to indicate if letters match the correct position.",
     Rules:
       "Colors : A correct letter turns green and A correct letter in the wrong place turns yellow also An incorrect letter turns gray with Letters can be used more than once but Answers are never plurals",
     extraRules:
