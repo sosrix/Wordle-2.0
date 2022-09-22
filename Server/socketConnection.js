@@ -1,5 +1,5 @@
 // setting up mongodb
-const { MongoClient, ObjectId } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 // setting up socket.io
 const io = require("socket.io")(3003, {
@@ -9,8 +9,12 @@ const io = require("socket.io")(3003, {
 });
 
 // Connection URL
-const url = process.env.MONGODB_URI;
-const client = new MongoClient(url);
+const uri = process.env.MONGODB_URI;
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1,
+});
 
 // Database Name
 const dbName = "wordleProject";
