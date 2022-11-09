@@ -8,4 +8,16 @@ _____________________________________________
 
 THIS WIKI NOT DONE YET, on progress...
 
-Live : https://wordle2-0.herokuapp.com/  (Still not yet ready)
+Live :  (Not yet ready)
+
+![CreateRoom](https://user-images.githubusercontent.com/11709895/200917279-b1b28bf0-c1a2-4fd2-9f0a-10604e16e8bf.png)
+
+![joinGame](https://user-images.githubusercontent.com/11709895/200917283-983fea76-67cf-47b7-a9e8-2f7724902fc2.png)
+
+![blankGameBoard](https://user-images.githubusercontent.com/11709895/200917273-cbf26ea8-e3b0-4e8c-98d0-d47ea75ca034.png)
+
+![activeGame](https://user-images.githubusercontent.com/11709895/200917265-2931a248-e9b4-45f5-900a-3fa1e710f857.png)
+
+![builtWithReact](https://user-images.githubusercontent.com/11709895/200917275-788ee390-48de-4482-ac52-4d36f43e3f2a.png)
+
+![wonGame](https://user-images.githubusercontent.com/11709895/200917284-22200570-3c93-4a1d-af45-01acda715061.png)
